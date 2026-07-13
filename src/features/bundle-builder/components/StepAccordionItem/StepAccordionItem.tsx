@@ -34,7 +34,7 @@ export function StepAccordionItem({
         </Accordion.Trigger>
       </Accordion.Header>
       <Accordion.Panel className="overflow-hidden">
-        <div className="flex flex-col gap-4 px-1 pb-6">
+        <div className="flex flex-col gap-4 px-1 pt-3 pb-6">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             {step.products.map((product, index) => (
               <div
