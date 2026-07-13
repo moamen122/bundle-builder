@@ -49,7 +49,8 @@ export interface ShippingInfo {
 
 export interface GuaranteeInfo {
   readonly label: string;
-  readonly sublabel: string;
+  readonly heading: string;
+  readonly description: string;
 }
 
 export interface BundleData {

@@ -71,7 +71,7 @@ const testData: BundleData = {
     },
   ],
   shipping: { label: 'Shipping', price: 0, compareAt: 5.99 },
-  guarantee: { label: 'Guarantee', sublabel: 'Sub' },
+  guarantee: { label: 'Guarantee', heading: 'Returns', description: 'Refund description' },
 };
 
 describe('buildInitialSelections', () => {
