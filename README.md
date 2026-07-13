@@ -1,114 +1,111 @@
 # Bundle Builder
 
-A multi-step security-system bundle builder with a live review panel, built from the provided
-Figma design. React 19 + TypeScript + Vite, styled with Tailwind CSS.
+Security-system bundle builder from the take-home Figma: a 4-step accordion (cameras, plan,
+sensors, extras) with a live review panel next to it. React 19, TypeScript, Vite, Tailwind v4.
 
-## Getting started
+## Running it
 
 ```bash
 npm install
 npm run dev
 ```
 
-Open the printed local URL (defaults to `http://localhost:5173`).
-
-Other scripts:
+`http://localhost:5173`. No backend — the catalog is a local JSON file at
+`src/features/bundle-builder/data/bundle.data.json`, imported directly.
 
 ```bash
-npm run build            # type-check + production build
-npm run test              # run the unit/RTL test suite (Vitest)
-npm run lint               # ESLint
-npm run storybook          # component/story explorer at http://localhost:6006
-npm run build-storybook    # static Storybook build
+npm run build            # tsc -b + vite build
+npm run test              # vitest
+npm run lint               # eslint
+npm run storybook          # http://localhost:6006
+npm run build-storybook
 ```
 
-No backend is required — all product/pricing data is a local JSON file
-(`src/features/bundle-builder/data/bundle.data.json`).
-
-## Architecture
-
-Feature-first, component-driven, following the folder convention: each component owns a
-`Component.tsx` (UI only), a colocated `Component.service.ts` (the `useComponent` hook holding
-state/handlers) when it has business logic, `.types.ts`, `.stories.tsx`, and an `index.ts` barrel.
+## Structure
 
 ```
 src/
-  common/components/     # cross-feature presentational primitives
-    QuantityStepper/
-    VariantSelector/
-    PriceTag/
+  common/components/          # PriceTag, QuantityStepper, VariantSelector
   features/bundle-builder/
-    data/bundle.data.json       # product/step/pricing data
+    data/bundle.data.json
     bundle-builder.types.ts
-    store/useBundleStore.ts     # single Zustand store (+ localStorage persistence)
-    utils/bundle.utils.ts       # pure selectors: totals, review sections, step counts
+    store/useBundleStore.ts
+    utils/bundle.utils.ts
     components/
-      BundleBuilder/            # two-column page layout, accordion orchestration
-      StepAccordionItem/        # one generic step, driven by data (not 4 near-duplicates)
+      BundleBuilder/          # page layout + accordion wiring
+      StepAccordionItem/      # one component for all 4 steps, driven by data
       ProductCard/
       ReviewPanel/
       ReviewLineItem/
-  stories/decorators.tsx        # seeds the real Zustand store for Storybook (never mocked)
+  stories/decorators.tsx
 ```
 
-State lives in one Zustand store: `selections` (`productId -> variantId -> quantity`) and
-`activeVariant` (`productId -> currently displayed variant`). Product cards and review-panel rows
-both read/write the same store, so a quantity change in either place is reflected everywhere
-instantly. `zustand/middleware persist` mirrors state to `localStorage` on every change, which is
-what makes "Save my system for later" durable across reloads.
+Each component folder is `Component.tsx` (markup only) + `Component.service.ts` (the `useX` hook —
+store access, handlers) when there's any logic, plus `.types.ts` and `.stories.tsx`.
 
-## Key decisions & tradeoffs
+## How it works
 
-- **Tailwind v4 + Base UI, no shadcn CLI scaffolding kept.** `shadcn/ui`'s CLI (the project's
-  documented default) was used to bootstrap Tailwind's CSS variables, but its generated Button/
-  Accordion/Badge/Separator primitives went unused once the design's actual markup was built —
-  they were deleted rather than left as dead code. `@base-ui/react`'s `Accordion` primitive is
-  used directly for the step accordion (real accessibility value: roving focus, `aria-expanded`,
-  panel semantics) instead of hand-rolling one.
-- **Plan is modeled as a single-select, not a quantity.** The review panel shows no stepper next
-  to "Cam Unlimited" in the design, which only makes sense if a plan is a radio choice, not a
-  count. Selecting a plan sets its quantity to 1 and zeroes its sibling in the same step — reusing
-  the same `selections` shape as everything else rather than adding a parallel "selected plan id"
-  field.
-- **Steps 2–4's expanded content isn't in the provided screenshots** (only the review panel's
-  seeded totals are). Sensor/plan/accessory product lists were filled in with plausible Wyze
-  products so the step is genuinely interactive, while quantities were seeded to reproduce the
-  review panel exactly as shown collapsed.
-- **The Figma mock's own numbers aren't internally consistent** (e.g. a card's per-unit price
-  doesn't multiply out to the review panel's line total for that product). Rather than replicate
-  the inconsistency, the seed data uses its own consistent per-unit prices so totals always
-  compute correctly from `unitPrice × quantity`.
-- **Product photos are placeholder SVGs**, not real Wyze product photography (`public/products/`).
-  They're stand-ins for layout/fidelity purposes only.
-- **Financing line ("as low as $X/mo")** is an illustrative `subtotal / 10` estimate — there's no
-  real financing calculation to reproduce, and the design doesn't specify one either.
-- **No backend.** The take-home explicitly calls this a bonus; a static JSON file is imported
-  directly and is trivial to swap for a fetch later.
-- **No React Router.** Single page, no navigation boundary — adding a router would be dead weight.
-- **No Playwright.** Per the project's own testing philosophy, Playwright is reserved for
-  journeys crossing multiple pages/routes/auth boundaries. This app has none of those; the
-  Vitest + RTL suite already covers the interactive logic (variant/quantity sync, plan
-  single-select, totals recalculation, persistence), and Storybook covers presentational states
-  and interaction (`play`) tests for the reusable UI pieces.
-- **Checkout** is a local-state confirmation message, per the brief ("a placeholder or a simple
-  confirmation is fine") — there's nowhere for it to actually go in this prototype.
+One Zustand store, two pieces of real state:
+
+- `selections`: `productId -> variantId -> quantity`
+- `activeVariant`: `productId -> which variant is currently shown on the card`
+
+Everything else (names, prices, images, steps) is the static JSON, never touched by the store.
+`ProductCard` and `ReviewLineItem` both call the same `setQuantity`/`setActiveVariant`, so they're
+never "synced" — they're just two renders of the same state. Switching a variant only changes
+`activeVariant`; it never touches `selections`, which is why adding 2 Red then switching to Blue
+shows 0 on the card but still shows Red ×2 in the review panel.
+
+Plans reuse the exact same shape instead of a separate "selected plan" concept — a plan product
+just has `selectionMode: 'single'`, and `setQuantity` zeroes its siblings in the same step when
+you select one. That's also why the plan row in the review panel has no stepper: it's a
+`billingPeriod !== undefined` check in `ReviewLineItem`, not a different data path.
+
+Persistence is `zustand/middleware`'s `persist`, mirroring the store to `localStorage` on every
+change. "Save my system for later" is mostly a confirmation UI — the state was already being saved
+continuously; the button just gives the user something to click and remember.
+
+The accordion is `@base-ui/react/accordion`, controlled from `BundleBuilder` via a single
+`openStepId` in the store. One open step, no manual close-the-others logic — that's just how a
+controlled single-value accordion root behaves.
+
+Totals and grouped review sections come from two pure functions in `bundle.utils.ts`
+(`getReviewSections`, `getTotals`) that take the store's `selections` and the static data and
+return plain objects — no React in there, which is why they're the most heavily unit-tested part
+of the app.
+
+## Data
+
+Prices in the seed data don't map onto Figma's actual numbers 1:1 — a couple of the mock's own
+numbers didn't multiply out consistently (unit price × qty ≠ the shown line total), so the JSON
+uses its own internally consistent prices instead of chasing an inconsistency. Product images are
+placeholder SVGs, not real photos. The financing line ("as low as $X/mo") is just `subtotal / 10`,
+there's no real calculation behind it. Steps 2–4's product lists aren't in the provided
+screenshots (only their collapsed totals are), so those are filled in with plausible products,
+seeded to match the review panel exactly as shown.
 
 ## Testing
 
-- `useBundleStore.test.ts` / `bundle.utils.test.ts` — store behavior and pure calculations
-  (variant independence, single-select radio logic, totals/savings math).
-- `ProductCard.test.tsx` — the variant-bound stepper, the selected-state border, the locked
-  required item, single-select plan switching.
-- `ReviewPanel.test.tsx` — grouped sections, live total recalculation, save/checkout
-  confirmations, no stepper on the plan line.
-- Storybook stories cover every component's meaningful states (default/selected, with/without
-  badge or variants, locked, single-select, empty cart) with `play` functions for the same
-  interactions where that's the more natural layer (per the project's "don't duplicate the same
-  assertion across layers" rule).
+- `bundle.utils.test.ts`, `useBundleStore.test.ts` — pure calculations and store transitions.
+- `ProductCard.test.tsx` — variant-bound stepper, selected state, locked/required item, plan
+  single-select.
+- `ReviewPanel.test.tsx` — grouped sections, totals recalculating, save/checkout confirmations.
+- Storybook stories cover each component's states (selected/unselected, no badge/variants, locked,
+  empty cart), with `play` functions where an interaction fits better there than in RTL.
 
-## What's not finished
+No Playwright, no React Router — single page, nothing crossing routes or auth, so neither pulled
+its weight.
 
-- Only desktop + one mobile breakpoint were manually checked in-browser; no cross-browser pass.
-- No dark mode (not in the design, not requested).
-- Accessibility is broadly there (labeled steppers/radiogroups, `aria-expanded` accordion,
-  Storybook's a11y addon enabled) but hasn't had a dedicated audit pass.
+## Known gaps
+
+- Only checked in one desktop and one mobile viewport by hand, no real cross-browser pass.
+- `PriceTag` (in `common/`) currently imports `formatMoney` from the bundle-builder feature's
+  utils — that's backwards for a component meant to be feature-agnostic, should move to a
+  shared util.
+- `StepAccordionItem` and `ReviewPanel` both subscribe to the whole `selections` object, so every
+  quantity change re-renders all four steps and the panel, not just the one that changed. Fine at
+  this catalog size, wouldn't scale gracefully.
+- Quantity stepper's number is `aria-hidden` with nothing announcing the new value to screen
+  readers — the one real accessibility gap I know about.
+- No schema validation on the JSON import (`as BundleData`, unchecked).
+- No minimum-selection guard on checkout — you can check out with an empty cart.
