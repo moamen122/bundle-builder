@@ -7,7 +7,7 @@ export function BundleBuilder() {
   const { steps, openStepId, handleValueChange } = useBundleBuilder();
 
   return (
-    <div className="mx-auto grid w-full max-w-6xl grid-cols-1 gap-8 px-4 py-8 md:max-w-7xl xl:max-w-6xl xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)] xl:items-start xl:px-8">
+    <div className="mx-auto grid w-full max-w-6xl grid-cols-1 gap-8 px-4 py-8 md:max-w-7xl md:px-8">
       <div>
         <h1 className="mb-6 text-3xl font-bold text-foreground sm:text-4xl">Let&apos;s get started!</h1>
         <Accordion.Root value={[openStepId]} onValueChange={handleValueChange}>

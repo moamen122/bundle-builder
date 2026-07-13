@@ -9,7 +9,7 @@ export function ReviewPanel() {
     useReviewPanel();
 
   return (
-    <aside className="flex flex-col gap-6 rounded-2xl bg-review-bg p-6 md:grid md:grid-cols-[1fr_300px] md:items-start xl:flex xl:flex-col xl:sticky xl:top-6">
+    <aside className="flex flex-col gap-6 rounded-2xl bg-review-bg p-6 md:grid md:grid-cols-[1fr_300px] md:items-start">
       <div className="flex flex-col gap-1">
         <span className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">
           Review
@@ -46,18 +46,18 @@ export function ReviewPanel() {
       </div>
 
       <div className="flex flex-col gap-3">
-        <div className="flex flex-col items-center gap-3 text-center md:items-start md:text-left xl:items-center xl:text-center">
-          <div className="flex size-20 shrink-0 flex-col items-center justify-center rounded-full border-4 border-dashed border-white bg-brand p-2 text-center text-[10px] leading-tight font-bold text-white md:size-28 md:text-xs xl:size-20 xl:text-[10px]">
+        <div className="flex flex-col items-center gap-3 text-center md:items-start md:text-left">
+          <div className="flex size-20 shrink-0 flex-col items-center justify-center rounded-full border-4 border-dashed border-white bg-brand p-2 text-center text-[10px] leading-tight font-bold text-white md:size-28 md:text-xs">
             {guarantee.label}
           </div>
-          <div className="hidden flex-col gap-1 md:flex xl:hidden">
+          <div className="hidden flex-col gap-1 md:flex">
             <h3 className="text-lg font-bold text-foreground">{guarantee.heading}</h3>
             <p className="text-sm text-muted-foreground">{guarantee.description}</p>
           </div>
         </div>
 
-        <div className="flex flex-col items-end gap-1 md:flex-row md:items-center md:justify-between xl:flex-col xl:items-end">
-          <span className="rounded-full bg-brand-dark px-3 py-1 text-xs font-semibold text-white md:order-none">
+        <div className="flex flex-col items-end gap-1 md:flex-row md:items-center md:justify-between">
+          <span className="rounded-full bg-brand-dark px-3 py-1 text-xs font-semibold text-white">
             as low as {formatMoney(totals.financingEstimate)}/mo
           </span>
           <div className="flex flex-col items-end">

@@ -13,7 +13,6 @@ export function StepAccordionItem({
 }: StepAccordionItemProps) {
   const { selectedCount, goToNextStep } = useStepAccordionItem(step, nextStep);
   const StepIcon = STEP_ICON_MAP[step.icon];
-  const isOddCount = step.products.length % 2 === 1;
 
   return (
     <Accordion.Item value={step.id} className="border-b border-border">
@@ -35,16 +34,9 @@ export function StepAccordionItem({
       </Accordion.Header>
       <Accordion.Panel className="overflow-hidden">
         <div className="flex flex-col gap-4 px-1 pt-3 pb-6">
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-[repeat(auto-fit,minmax(200px,1fr))] xl:grid-cols-2">
-            {step.products.map((product, index) => (
-              <div
-                key={product.id}
-                className={
-                  isOddCount && index === step.products.length - 1 ? 'xl:col-span-2' : undefined
-                }
-              >
-                <ProductCard product={product} />
-              </div>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-[repeat(auto-fit,minmax(200px,1fr))]">
+            {step.products.map((product) => (
+              <ProductCard key={product.id} product={product} />
             ))}
           </div>
           {nextStep && (

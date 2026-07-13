@@ -1,7 +1,7 @@
 # Bundle Builder
 
 Security-system bundle builder from the take-home Figma: a 4-step accordion (cameras, plan,
-sensors, extras) with a live review panel next to it. React 19, TypeScript, Vite, Tailwind v4.
+sensors, extras) with a live review panel below it. React 19, TypeScript, Vite, Tailwind v4.
 
 ## Running it
 
@@ -98,7 +98,11 @@ its weight.
 
 ## Known gaps
 
-- Only checked in one desktop and one mobile viewport by hand, no real cross-browser pass.
+- Layout is one column throughout: mobile stacks everything; from `md` up, the product grid
+  auto-fits as many cards per row as space allows and the review panel splits into a line-items
+  column plus a summary column (guarantee copy, price, checkout), full width, below the
+  accordion — no side-by-side desktop mode. Checked by hand at a handful of widths, no real
+  cross-browser pass.
 - `PriceTag` (in `common/`) currently imports `formatMoney` from the bundle-builder feature's
   utils — that's backwards for a component meant to be feature-agnostic, should move to a
   shared util.
