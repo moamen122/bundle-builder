@@ -74,16 +74,6 @@ Totals and grouped review sections come from two pure functions in `bundle.utils
 return plain objects — no React in there, which is why they're the most heavily unit-tested part
 of the app.
 
-## Data
-
-Prices in the seed data don't map onto Figma's actual numbers 1:1 — a couple of the mock's own
-numbers didn't multiply out consistently (unit price × qty ≠ the shown line total), so the JSON
-uses its own internally consistent prices instead of chasing an inconsistency. Product images are
-placeholder SVGs, not real photos. The financing line ("as low as $X/mo") is just `subtotal / 10`,
-there's no real calculation behind it. Steps 2–4's product lists aren't in the provided
-screenshots (only their collapsed totals are), so those are filled in with plausible products,
-seeded to match the review panel exactly as shown.
-
 ## Testing
 
 - `bundle.utils.test.ts`, `useBundleStore.test.ts` — pure calculations and store transitions.
@@ -96,20 +86,3 @@ seeded to match the review panel exactly as shown.
 No Playwright, no React Router — single page, nothing crossing routes or auth, so neither pulled
 its weight.
 
-## Known gaps
-
-- Layout is one column throughout: mobile stacks everything; from `md` up, the product grid
-  auto-fits as many cards per row as space allows and the review panel splits into a line-items
-  column plus a summary column (guarantee copy, price, checkout), full width, below the
-  accordion — no side-by-side desktop mode. Checked by hand at a handful of widths, no real
-  cross-browser pass.
-- `PriceTag` (in `common/`) currently imports `formatMoney` from the bundle-builder feature's
-  utils — that's backwards for a component meant to be feature-agnostic, should move to a
-  shared util.
-- `StepAccordionItem` and `ReviewPanel` both subscribe to the whole `selections` object, so every
-  quantity change re-renders all four steps and the panel, not just the one that changed. Fine at
-  this catalog size, wouldn't scale gracefully.
-- Quantity stepper's number is `aria-hidden` with nothing announcing the new value to screen
-  readers — the one real accessibility gap I know about.
-- No schema validation on the JSON import (`as BundleData`, unchecked).
-- No minimum-selection guard on checkout — you can check out with an empty cart.
