@@ -7,10 +7,13 @@ export function BundleBuilder() {
   const { steps, openStepId, handleValueChange } = useBundleBuilder();
 
   return (
-    <div className="mx-auto grid w-full max-w-6xl grid-cols-1 gap-8 px-4 py-8 md:max-w-7xl md:px-8">
+    <div className="mx-auto grid w-full max-w-6xl grid-cols-1 gap-8 px-4 py-8 md:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)] md:items-start md:px-8 xl:max-w-7xl xl:grid-cols-1">
       <div>
         <h1 className="mb-6 text-3xl font-bold text-foreground sm:text-4xl">Let&apos;s get started!</h1>
-        <Accordion.Root value={[openStepId]} onValueChange={handleValueChange}>
+        <Accordion.Root
+          value={openStepId ? [openStepId] : []}
+          onValueChange={handleValueChange}
+        >
           {steps.map((step, index) => (
             <StepAccordionItem
               key={step.id}

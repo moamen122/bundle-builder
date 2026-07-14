@@ -7,8 +7,7 @@ export function useBundleBuilder() {
   const steps = [...bundleData.steps].sort((a, b) => a.order - b.order);
 
   const handleValueChange = (value: string[]) => {
-    const nextOpenStepId = value[value.length - 1];
-    if (nextOpenStepId) setOpenStep(nextOpenStepId);
+    setOpenStep(value[value.length - 1] ?? '');
   };
 
   return { steps, openStepId, handleValueChange };

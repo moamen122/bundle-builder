@@ -32,17 +32,19 @@ describe('ReviewPanel', () => {
     const user = userEvent.setup();
     render(<ReviewPanel />);
 
-    const before = screen.getByText(/^\$\d/, {
+    const before = screen.getAllByText(/^\$\d/, {
       selector: 'span.text-2xl',
-    }).textContent;
+    })[0].textContent;
 
     const increase = screen.getByRole('button', {
       name: 'Increase Wyze Cam v4 (White) quantity',
     });
     await user.click(increase);
 
-    const after = screen.getByText(/^\$\d/, { selector: 'span.text-2xl' }).textContent;
-    expect(after).not.toBe(before);
+    const after = screen.getAllByText(/^\$\d/, { selector: 'span.text-2xl' });
+    for (const total of after) {
+      expect(total.textContent).not.toBe(before);
+    }
   });
 
   it('does not render a quantity stepper for the plan line item', () => {
